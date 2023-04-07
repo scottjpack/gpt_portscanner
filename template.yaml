@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+
+Resources:
+  ScanRequestQueue:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      QueueName: ScanRequestQueue
+      VisibilityTimeout: 330
+
+  ScanResultsTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: ip_address
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: ip_address
+          KeyType: RANGE
+      ProvisionedThroughput:
+         ReadCapacityUnits: 5
+         WriteCapacityUnits: 5
+      TableName: ScanResultsTable
+
+  ScanRequestHandlerFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      FunctionName: ScanRequestHandlerFunction
+      CodeUri: ./src/scan_request_handler/
+      Handler: handler.handler
+      Runtime: python3.8
+      Timeout: 300
+      Environment:
+        Variables:
+          SCAN_REQUEST_QUEUE_URL: !GetAtt ScanRequestQueue.QueueUrl
+      Events:
+        ScanRequestApi:
+          Type: Api
+          Properties:
+            Path: /scan-request
+            Method: post
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt ScanRequestQueue.QueueName
+
+
+  PortScannerFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      FunctionName: PortScannerFunction
+      CodeUri: ./src/port_scanner/
+      Handler: handler.handler
+      Runtime: python3.8
+      Timeout: 300
+      Environment:
+        Variables:
+          SCAN_REQUEST_QUEUE_URL: !GetAtt ScanRequestQueue.QueueUrl
+          SCAN_RESULTS_TABLE_NAME: !Ref ScanResultsTable
+      Events:
+        ScanRequestQueue:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt ScanRequestQueue.Arn
+            BatchSize: 1
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ScanResultsTable
+
+Outputs:
+  ScanRequestHandlerFunction:
+    Description: "ARN of the Scan Request Handler Lambda Function"
+    Value: !GetAtt ScanRequestHandlerFunction.Arn
+  ScanResultsTable:
+    Description: "ARN of the DynamoDB table for storing scan results"
+    Value: !Ref ScanResultsTable
+  ScanRequestQueue:
+    Description: 'SQS queue for receiving port scan requests'
+    Value: !Ref ScanRequestQueue

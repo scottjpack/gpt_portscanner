@@ -73,22 +73,22 @@ optional arguments:
 ### Getting all scan results:
 The --get-all-results flag allows you to get all the scan results stored in DynamoDB:
 ```
-./ipscan.py --stack-name <stack-name> --get-all-results
+./invoker.py --stack-name <stack-name> --get-all-results
 ```
 
 
 ### Querying scan results:
 The --query-results flag allows you to query the scan results for the given CIDR(s):
 ```
-./ipscan.py --stack-name <stack-name> --cidr <cidr> --query-results
-./ipscan.py --stack-name <stack-name> --cidr-file <cidr-file> --query-results
+./invoker.py --stack-name <stack-name> --cidr <cidr> --query-results
+./invoker.py --stack-name <stack-name> --cidr-file <cidr-file> --query-results
 ```
 
 ### Invoking the function:
 The --invoke flag allows you to invoke the Lambda function for the given CIDR(s):
 ```
-./ipscan.py --stack-name <stack-name> --cidr <cidr> --invoke
-./ipscan.py --stack-name <stack-name> --cidr-file <cidr-file> --invoke
+./invoker.py --stack-name <stack-name> --cidr <cidr> --invoke
+./invoker.py --stack-name <stack-name> --cidr-file <cidr-file> --invoke
 ```
 
 

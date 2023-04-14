@@ -99,3 +99,7 @@ If you find a bug or have an idea for a new feature, please create an issue on t
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## GPT Chat Histories:
+https://sharegpt.com/c/X1GZoHN - Main Thread
+https://sharegpt.com/c/0QZBQSo - Unit Test creation thread
